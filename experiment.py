@@ -2,32 +2,57 @@ import sys
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
+import random
 
-class MainWindow(QMainWindow):
+class AlanPushButton(QPushButton):
+    random_number = pyqtSignal(list, name = 'random number')
+    a_signal = pyqtSignal()
 
-    def __init__(self):
-        super(MainWindow, self).__init__()
-        self.title = "Image Viewer"
-        self.setWindowTitle(self.title)
+    def __init__(self, parent):
+        super(AlanPushButton, self).__init__(parent)
+    
+    def mousePressEvent(self, event):
+        self.clicked()
+        self.emitSignal()
 
-        label = QLabel(self)
-        img = QImage(QSize(400, 300), QImage.Format_Grayscale8)
-        painter = QPainter(img)
-        painter.fillRect(QRectF(0,0,400,300), QColor('green'))
-        c = img.pixel(100, 100)
-        colors = QColor(c).get
-        print(f'is img grayscale? {img.isGrayscale()}')
-        print(f'pixel value at 100,100 : {colors}')
-        del painter
+    def emitSignal(self):
+        self.a_signal.emit()
 
-
-
-        label.setPixmap(QPixmap.fromImage(img))
-        self.setCentralWidget(label)
-        self.resize(img.width(), img.height())
+    def clicked(self):
+        self.random_number.emit([i for i in range(random.randint(2,8))])
 
 
-app = QApplication(sys.argv)
-w = MainWindow()
-w.show()
-sys.exit(app.exec_())
+def window():
+    app = QApplication(sys.argv)
+    win = QDialog()
+
+    b1 = AlanPushButton(win)
+    b1.setText("Button1")
+    b1.move(50,20)
+    b1.random_number.connect(b1_clicked)
+    b1.a_signal.connect(b1_signal)
+
+    b2 = AlanPushButton(win)
+    b2.setText("Button2")
+    b2.move(50,50)
+    # QObject.connect(b2, SIGNAL("random number"), b2_clicked)
+    b2.random_number.connect(b2_clicked)
+
+    win.setGeometry(100,100,200,100)
+    win.setWindowTitle("PyQt")
+    win.show()
+    sys.exit(app.exec_())
+
+@pyqtSlot(int)
+def b1_clicked(num):
+   print(f"Button 1 clicked, random number is {num}")
+
+@pyqtSlot(int)
+def b2_clicked(num):
+   print(f"Button 2 clicked, random number is {num}")
+
+@pyqtSlot()
+def b1_signal():
+    print('signal from b1 is emitted')
+
+window()

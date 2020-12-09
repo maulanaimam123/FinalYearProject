@@ -4,11 +4,11 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 import os
-# print(f'System path : {sys.path}')
 sys.path.insert(1, os.getcwd())
 
 from util.DrawingArea import DrawingArea
 from util.MouseTracker import MouseTracker
+from util.Graph import ScrollableGraph
 
 class Window(QMainWindow):
     def __init__(self, title = None):
@@ -66,7 +66,6 @@ class Window(QMainWindow):
     def getImage(self):
         file_name = QFileDialog.getOpenFileName(self, "Open File", "C:", "Image Files (*.jpg *.jpeg *.png)")
         self.DrawingArea.image_path = file_name[0]
-        print(f'image path is {self.DrawingArea.image_path}')
         self.DrawingArea.loadImage()
 
     def saveImage(self):
@@ -87,19 +86,38 @@ class Window(QMainWindow):
             
     # WORKING SPACE
     def _setUpWorkingSpace(self):
-        self.DrawingArea = DrawingArea(self)
+        # Drawing Area
+        self.DrawingArea = DrawingArea()
+
+        # Connecting Signal from DrawingArea
+        self.DrawingArea.profileSignal.connect(self.add_graph)
+        self.DrawingArea.loadSignal.connect(self.refresh_plot)
+
+        # Mouse Tracker
         tracker = MouseTracker(self.DrawingArea)
+
+        # Connecting Signal from MouseTracker
         tracker.positionChanged.connect(self.on_position_changed)
         self.label_position = QLabel(self.DrawingArea, alignment=Qt.AlignCenter)
         self.label_position.setStyleSheet('background-color: white; border: 1px solid black; font: 14pt')
 
+        # Profiles Plot
+        self.ProfilePlot = ScrollableGraph()
+
         # Central Layout
+        firstRowWidget = QWidget()
+        firstRowLayout = QHBoxLayout(firstRowWidget)
+        firstRowLayout.addWidget(self.DrawingArea)
+        firstRowLayout.addWidget(self.ProfilePlot)
+
         main_widget = QWidget()
         self.setCentralWidget(main_widget)
         lay = QVBoxLayout(main_widget)
-        lay.addWidget(self.DrawingArea)
+
+        lay.addWidget(firstRowWidget)
         lay.addWidget(QPushButton(QIcon(), 'Hellow World'))
 
+    # SIGNAL HANDLING
     @pyqtSlot(QPoint)
     def on_position_changed(self, pos):
         delta = QPoint(30, -15)
@@ -107,6 +125,14 @@ class Window(QMainWindow):
         self.label_position.move(pos + delta)
         self.label_position.setText("(%d, %d)" % (pos.x(), pos.y()))
         self.label_position.adjustSize()
+
+    @pyqtSlot(list)
+    def add_graph(self, profile):
+        self.ProfilePlot.addProfile(profile)
+    
+    @pyqtSlot()
+    def refresh_plot(self):
+        self.ProfilePlot.clear()
 
 def main():
     app = QApplication(sys.argv)
