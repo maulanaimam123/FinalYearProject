@@ -67,13 +67,14 @@ class Window(QMainWindow):
         file_name = QFileDialog.getOpenFileName(self, "Open File", "C:", "Image Files (*.jpg *.jpeg *.png)")
         self.DrawingArea.image_path = file_name[0]
         print(f'image path is {self.DrawingArea.image_path}')
-        self.DrawingArea.refresh()
+        self.DrawingArea.loadImage()
 
     def saveImage(self):
-        pass
+        file_name = QFileDialog.getSaveFileName(self, caption = "Save file", directory = "C:", filter = "Image Files (*.jpg *.jpeg *.png)")
+        self.DrawingArea.saveImage(file_name[0])
     
     def clear(self):
-        self.DrawingArea.refresh()
+        self.DrawingArea.loadImage()
     
     def closeEvent(self, event):
         reply = QMessageBox.question(self, 'Warning',
