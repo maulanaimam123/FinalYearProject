@@ -64,12 +64,12 @@ class Window(QMainWindow):
         analysis_menu.addActions([clear_act])
     
     def getImage(self):
-        file_name = QFileDialog.getOpenFileName(self, "Open File", "C:", "Image Files (*.jpg *.jpeg *.png)")
+        file_name = QFileDialog.getOpenFileName(self, "Open File", "./", "Image Files (*.jpg *.jpeg *.png)")
         self.DrawingArea.image_path = file_name[0]
         self.DrawingArea.loadImage()
 
     def saveImage(self):
-        file_name = QFileDialog.getSaveFileName(self, caption = "Save file", directory = "C:", filter = "Image Files (*.jpg *.jpeg *.png)")
+        file_name = QFileDialog.getSaveFileName(self, caption = "Save file", directory = "./", filter = "Image Files (*.jpg *.jpeg *.png)")
         self.DrawingArea.saveImage(file_name[0])
     
     def clear(self):
@@ -103,6 +103,7 @@ class Window(QMainWindow):
 
         # Profiles Plot
         self.ProfilePlot = ScrollableGraph()
+        self.ProfilePlot.setFixedWidth(380)
 
         # Central Layout
         firstRowWidget = QWidget()
@@ -136,7 +137,7 @@ class Window(QMainWindow):
 
 def main():
     app = QApplication(sys.argv)
-    demo = Window('Some title...')
+    demo = Window('SEM Image Analysis')
     demo.show()
     sys.exit(app.exec_())
 

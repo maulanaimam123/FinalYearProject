@@ -86,6 +86,7 @@ class DrawingArea(QWidget):
     def loadImage(self):
         # Unfix widget size
         self.setMaximumSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX)
+        print(f'Maximum size is {QWIDGETSIZE_MAX}')
         self.setMinimumSize(0,0)
 
         # Load image
