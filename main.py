@@ -9,6 +9,7 @@ sys.path.insert(1, os.getcwd())
 from util.DrawingArea import DrawingArea
 from util.MouseTracker import MouseTracker
 from util.Graph import ScrollableGraph
+from util.CustomPen import CustomPen
 from util.algorithm import calculate_beam_diameter
 
 class Window(QMainWindow):
@@ -16,8 +17,9 @@ class Window(QMainWindow):
         super().__init__()
         self.title = title
         self.icon_dir = './icon/'
-        self._initUI(title)
         self.show()
+        self.pen = CustomPen()
+        self._initUI(title)
 
     def _initUI(self, title = None):
         self.setWindowTitle(title)
@@ -89,6 +91,7 @@ class Window(QMainWindow):
     def _setUpWorkingSpace(self):
         # Drawing Area
         self.DrawingArea = DrawingArea()
+        self.DrawingArea.pen = self.pen
 
         # Connecting Signal from DrawingArea
         self.DrawingArea.profileSignal.connect(self.add_graph)
@@ -131,12 +134,14 @@ class Window(QMainWindow):
     @pyqtSlot(list)
     def add_graph(self, values):
         profile, line_coords = values 
+        self.ProfilePlot.penColor = self.pen.color_code
         self.ProfilePlot.addProfile(profile)
         FWHM, first_derivative = calculate_beam_diameter(profile, 
                                                          line_coords,
                                                          self.DrawingArea.image_grayscale.shape[1],
                                                          self.DrawingArea.image_grayscale.shape[0])
         self.ProfilePlot.addProfile(first_derivative, FWHM = FWHM)
+        self.pen.randomizeColor()
     
     @pyqtSlot()
     def refresh_plot(self):
