@@ -21,9 +21,10 @@ class ScrollableGraph(QScrollArea):
         self.setWidgetResizable(True)
         self.setWidget(main_widget)
 
-    def addProfile(self, profile):
+    def addProfile(self, profile, FWHM = 0):
         x = [i for i in range(1, len(profile) + 1)]
-        plot_object = pg.PlotWidget()
+        plot_object = pg.PlotWidget(title = str(FWHM) if FWHM != 0 else None)
+        plot_object.setFixedHeight(150)
         plot_object.setBackground('w')
         plot_object.plot(x, profile, pen = self.pen)
         self.vbox.addWidget(plot_object)

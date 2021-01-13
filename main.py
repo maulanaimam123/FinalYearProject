@@ -9,6 +9,7 @@ sys.path.insert(1, os.getcwd())
 from util.DrawingArea import DrawingArea
 from util.MouseTracker import MouseTracker
 from util.Graph import ScrollableGraph
+from util.algorithm import calculate_beam_diameter
 
 class Window(QMainWindow):
     def __init__(self, title = None):
@@ -103,7 +104,7 @@ class Window(QMainWindow):
 
         # Profiles Plot
         self.ProfilePlot = ScrollableGraph()
-        self.ProfilePlot.setFixedWidth(380)
+        self.ProfilePlot.setFixedWidth(400)
 
         # Central Layout
         firstRowWidget = QWidget()
@@ -128,8 +129,14 @@ class Window(QMainWindow):
         self.label_position.adjustSize()
 
     @pyqtSlot(list)
-    def add_graph(self, profile):
+    def add_graph(self, values):
+        profile, line_coords = values 
         self.ProfilePlot.addProfile(profile)
+        FWHM, first_derivative = calculate_beam_diameter(profile, 
+                                                         line_coords,
+                                                         self.DrawingArea.image_grayscale.shape[1],
+                                                         self.DrawingArea.image_grayscale.shape[0])
+        self.ProfilePlot.addProfile(first_derivative, FWHM = FWHM)
     
     @pyqtSlot()
     def refresh_plot(self):
